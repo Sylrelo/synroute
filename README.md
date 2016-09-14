@@ -5,9 +5,16 @@ Usage :
 ````php
     require 'synroute.php';
     $route = new Synroute();
+    
     $route->get('/', function(){
 	    // your code here
     });
+    
+    // Can use regular expression
+    $route->get('/page/([0-9]++)', function($p){
+	    // your code here
+    });
+    
     $route->post('/superlink', function(){
 	    // your code here
     });
