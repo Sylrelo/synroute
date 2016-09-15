@@ -56,34 +56,38 @@ class SynRoute {
         $this->add('DELETE', $uri, $callback);
     }
 
-    public function checkXHR($k){
+    public function isRequestXHR($k){
         //return ($this->_xhr[$k] == 1 ? (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' ? true : false) : true );
-        if($this->_xhr[$k] == 1){
+        if($this->_xhr[$k] == true){
             if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-                return 1;
+                return true;
             }
             else {
-                return 0;
+                return false;
             }
         }
         else {
-            return 1;
+            return true;
         }
     }
 
-    public function rMethod($k){
-            return ($_SERVER['REQUEST_METHOD'] == $this->_type[$k] ? true : false);
+    public function routeMethod($k){
+        return ($_SERVER['REQUEST_METHOD'] == $this->_type[$k] ? true : false);
+    }
+
+    public function checks($k){
+        return (($this->routeMethod($k) && $this->isRequestXHR($k)) ? true : false);
     }
 
     public function run(){
         $_routeExists = false;
         foreach($this->_uri as $k =>$v){
-            if(preg_match("#^$v$#", $this->_basepath, $params) && $this->rMethod($k) && $this->checkXHR($k)){
+            if(preg_match("#^$v$#", $this->_basepath, $params) && $this->checks($k)){
                 array_shift($params);
                 call_user_func_array($this->_callback[$k], $params);
                 $_routeExists = true;
             }
-            elseif($v == "all:" && !$_routeExists && $this->rMethod($k) && $this->checkXHR($k)){
+            elseif($v == "all:" && !$_routeExists && $this->checks($k)){
                 call_user_func($this->_callback[$k]);
             }
             else{
