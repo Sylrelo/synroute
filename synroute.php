@@ -76,10 +76,18 @@ class SynRoute {
     }
 
     public function run(){
-        foreach($this->_uri as $k => $v){
+        $_routeExists = false;
+        foreach($this->_uri as $k =>$v){
             if(preg_match("#^$v$#", $this->_basepath, $params) && $this->rMethod($k) && $this->checkXHR($k)){
                 array_shift($params);
                 call_user_func_array($this->_callback[$k], $params);
+                $_routeExists = true;
+            }
+            elseif($v == "all:" && !$_routeExists && $this->rMethod($k) && $this->checkXHR($k)){
+                call_user_func($this->_callback[$k]);
+            }
+            else{
+                // do nothing
             }
         }
     }
